@@ -2,6 +2,7 @@ $(function() {
 
     var layer = layui.layer
     var form = layui.form
+    var laypage = layui.laypage
 
     // 定义美化时间的过滤器
     template.defaults.imports.dataFormt = function(date){
@@ -45,6 +46,9 @@ $(function() {
                 // 使用模板引擎渲染页面
                 var htmlStr = template('tpl-table', res)
                 $('tbody').html(htmlStr)
+
+                // 调用渲染分页的方法
+                renderPage(res.total)
             }
         })
     }
@@ -79,6 +83,37 @@ $(function() {
         q.state = state
         // 根据新的查询参数，重新渲染table
         initTable()
-
     })
+
+    // 定义渲染分页的方法
+    function renderPage(total){
+        // console.log(total);
+        // 调用laypage.rander()方法来渲染分页的结构
+        laypage.render({
+            elem: 'pageBox',//分页容器的id
+            count: total,//总数据条数
+            limit: q.pagesize,//每页显示几条数据
+            curr: q.pagenum, //设置默认被选中的分页
+            layout: ['count','limit','prev', 'page', 'next','skip'],
+            limits:[2,3,5,10],
+            // 分页发生切换时，触发jump回调
+            // 触发 jump 回调的方式有两种
+            // 1 点击页码的时候，会触发 jump 回调的方式有两种
+            // 2 只要调用了laypage.render()方法，就会触发 jump 回调
+            jump: function(obj, first){
+                // console.log(obj.curr);
+                // 把最新的页码值，赋值到 q 这个查询参数对象中
+                q.pagenum = obj.curr
+                // 把最新的条目数，赋值到 q 这个查询参数对象中
+                q.pagesize = obj.limit
+                // 可以通过first的值，来判断是否通过哪种方式触发的回调
+                // 如果 first 的值为 true，证明是方式2触发的
+                // 否则就是方式1触发的
+                if(!first){
+                    // 根据最新的 q 获取对应的数据列表，并渲染表格
+                    initTable()
+                }
+            }
+        })
+    }
 })
