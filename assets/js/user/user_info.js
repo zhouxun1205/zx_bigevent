@@ -19,7 +19,7 @@ $(function(){
             method: 'GET',
             url: '/my/userinfo',
             success: function(res){
-                if(res.status !== 0){
+                if(res.code !== 0){
                     return layer.msg('获取用户信息失败！' + res.message)
                 }
                 // console.log(res)
