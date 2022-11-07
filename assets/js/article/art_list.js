@@ -116,4 +116,35 @@ $(function() {
             }
         })
     }
+
+    // 通过代理的形式，为删除按钮绑定点击事件处理函数
+    $('tbody').on('click', '#btn-del', function(){
+        // 获取当前页面删除按钮的个数
+        var len = $('#btn-del').length
+
+        // 获取文章的id
+        var id = $(this).attr('data-id')
+        // 询问用户是否删除
+        layer.confirm('确认删除？', {icon: 3, title:'提示'}, function(index){
+            //发ajax请求删除数据
+            $.ajax({
+                method: 'GET',
+                url: '/my/article/delete/' + id,
+                success: function(res){
+                    if(res.status !== 0){
+                       return layer.msg('删除失败！' + res.message)
+                    }
+                    layer.msg('删除成功！')
+
+                    // 当数据删除之后，要判断当前这一页中，是否还有剩余的数据
+                    // 如果没有剩余的数据了，则让页码值 -1 之后，再调用initTable方法
+                    if(len === 1){
+                        q.pagenum = q.pagenum === 1 ? 1 : q.pagenum - 1
+                    }
+                    initTable()
+                }
+            })
+            layer.close(index);
+          });
+    })
 })
